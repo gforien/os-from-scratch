@@ -1,3 +1,5 @@
+#include "src/syscall.h"
+
 void dummy()
 {
     return;
@@ -30,6 +32,14 @@ int __attribute__((naked)) compute_volume2(int rad)
 
 int kmain( void )
 {
+    /* Chapter 4 : System calls */
+    // SYSTEM MODE
+    __asm("cps 0x10");
+
+    //******************************/
+    // USER MODE
+    sys_reboot();
+
     /* Chapter 3 : Execution modes */
     __asm("cps #16");
     __asm("cps #19");

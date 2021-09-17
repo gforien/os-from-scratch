@@ -15,7 +15,7 @@ b asm_swi_handler
 b C_swi_handler
 b kernel_panic
 b *kmain
-
+b do_sys_reboot
 
 source utils.gdb
 

@@ -81,8 +81,7 @@ asm_irq_handler:
     b asm_irq_handler
 
 asm_swi_handler:
-    nop
-    b asm_swi_handler
+    b C_swi_handler
 
 hang:
     wfi
@@ -90,4 +89,3 @@ hang:
 
 asm_data_handler:
 	b asm_data_handler
-
