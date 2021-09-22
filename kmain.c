@@ -38,6 +38,8 @@ int kmain( void )
 
     //******************************/
     // USER MODE
+    sys_nop();
+
     sys_reboot();
 
     /* Chapter 3 : Execution modes */
