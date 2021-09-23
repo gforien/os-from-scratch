@@ -49,6 +49,9 @@ void sys_settime(uint64_t date_ms)
 }
 void do_sys_settime()
 {
+    int x1 = 12;
+    int x2 = 13;
+    x2 += x1;
 }
 
 // Syscall number 2
