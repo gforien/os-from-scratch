@@ -36,12 +36,26 @@
  *
  */
 
+// Syscall number 3
+void sys_settime(uint64_t date_ms)
+{
+    uint32_t lsw = (uint32_t) date_ms;
+    uint32_t msw = (uint32_t) (date_ms >> 32);
+
+    __asm("mov r0, #3");
+    __asm("mov r1, %0" : : "r"(lsw) : "r0");
+    __asm("mov r2, %0" : : "r"(msw) : "r0","r1","r2");
+    __asm("swi #0");
+}
+void do_sys_settime()
+{
+}
 
 // Syscall number 2
 void sys_nop()
 {
     __asm("mov r0, #2");
-    __asm("swi #0" : : : "r0");
+    __asm("swi #0");
 }
 void do_sys_nop()
 {
@@ -53,7 +67,7 @@ void do_sys_nop()
 void sys_reboot()
 {
     __asm("mov r0, #1");
-    __asm("swi #0" : : : "r0");
+    __asm("swi #0");
     // the instruction SWI require an immediate operand, but we will not use it
     // in the project. In practice, you will always use the syntax SWI #0
 }
@@ -69,6 +83,8 @@ void __attribute__((naked)) C_swi_handler()
     // save user registers
     __asm("stmfd sp!, {r1-r12, lr}");
 
+    // get parameters
+
     // get the syscall number from r0
     int X;
     __asm("mov %0, r0" : "=r"(X));
@@ -78,6 +94,9 @@ void __attribute__((naked)) C_swi_handler()
     }
     else if (X == 2) {
         do_sys_nop();
+    }
+    else if (X == 3) {
+        do_sys_settime();
     }
     else {
         PANIC();
