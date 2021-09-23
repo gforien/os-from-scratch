@@ -64,7 +64,7 @@ void do_sys_reboot()
 
 
 // Handler
-void C_swi_handler()
+void __attribute__((naked)) C_swi_handler()
 {
     // save user registers
     __asm("stmfd sp!, {r1-r12, lr}");

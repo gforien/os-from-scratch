@@ -38,7 +38,7 @@ int kmain( void )
 
     //******************************/
     // USER MODE
-    sys_nop();
+    while (1) sys_nop();
 
     sys_reboot();
 
