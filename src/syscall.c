@@ -66,6 +66,10 @@ void do_sys_reboot()
 // Handler
 void C_swi_handler()
 {
+    // save user registers
+    __asm("stmfd sp!, {r1-r12, lr}");
+
+    // get the syscall number from r0
     int X;
     __asm("mov %0, r0" : "=r"(X));
 
@@ -78,4 +82,7 @@ void C_swi_handler()
     else {
         PANIC();
     }
+
+    // load user registers
+    __asm("ldmfd sp!, {r1-r12, pc}^");
 }
