@@ -38,9 +38,12 @@ int kmain( void )
 
     //******************************/
     // USER MODE
-    while (1) sys_nop();
+    sys_settime(0x0123456789acbdef);
+
+    sys_nop();
 
     sys_reboot();
+    //******************************/
 
     /* Chapter 3 : Execution modes */
     __asm("cps #16");
