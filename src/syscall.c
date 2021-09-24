@@ -37,8 +37,39 @@
  *
  */
 
-// Syscall number 3
 int* registers_p;
+
+
+// Syscall number 4
+uint64_t sys_gettime()
+{
+    __asm("mov r0, #4");
+    __asm("swi #0");
+
+
+    uint32_t lsw;
+    uint64_t msw;
+    __asm("mov %0, r0" : "=r"(lsw) : : "r1");
+    __asm("mov %0, r1" : "=r"(msw) : : "r0");
+
+    uint64_t date = lsw;
+    uint64_t date_2 = (msw << 32);
+    date = date + date_2;
+    return date;
+}
+void do_sys_gettime()
+{
+    uint64_t date = get_date_ms();
+    uint32_t lsw = (uint32_t) date;
+    uint32_t msw = (uint32_t) (date >> 32);
+    *(registers_p) = lsw;
+    *(registers_p+1) = msw;
+    //__asm("mov r0, %0" : : "r"(lsw));
+    //__asm("mov r1, %0" : : "r"(msw) : "r0");
+}
+
+
+// Syscall number 3
 void sys_settime(uint64_t date_ms)
 {
     uint32_t lsw = (uint32_t) date_ms;
@@ -122,6 +153,9 @@ void __attribute__((naked)) C_swi_handler()
             break;
         case 3:
             do_sys_settime();
+            break;
+        case 4:
+            do_sys_gettime();
             break;
         default:
             PANIC();
