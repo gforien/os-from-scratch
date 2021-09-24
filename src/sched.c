@@ -33,19 +33,30 @@ void sys_yieldto(pcb_s* dest)
 }
 void do_sys_yieldto()
 {
-    // 1) save context, firstly r0-12
+    // 1) Switch to System mode (31) to save LR_user and SP_user
+    __asm("cps #31");
+    __asm("mov %0, lr" : "=r"(current_process->LR_user));
+    // then switch back to SVC mode (19)
+    __asm("cps #19");
+
+    // 2) save context, firstly r0-12
     for (int i = 0; i < 13; ++i) {
         *(current_process->general_registers+i) = *(saved_registers+i);
     }
     // then save r14 (i.e. lr) but at position 13
     current_process->next_instruction = (int*)*(saved_registers + 13);
 
-    // 2) change process
-    current_process = (pcb_s*) (saved_registers+1);
 
-    // 3) restore context
+    // 2) change process
+    current_process = (pcb_s*) *(saved_registers+1);
+
+
+    // 3) restore context : same as step 2 but reversed
     for (int i = 0; i < 13; ++i) {
         *(saved_registers+i) = *(current_process->general_registers+i);
     }
     *(saved_registers+13) = (int) current_process->next_instruction;
+    __asm("cps #31");
+    __asm("mov lr, %0" :  : "r"(current_process->LR_user));
+    __asm("cps #19");
 }
