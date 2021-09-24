@@ -4,6 +4,18 @@
 pcb_s* current_process;
 pcb_s* kmain_process;
 
+pcb_s* create_process (func_t* entry)
+{
+    // 1. allocate a new PCB
+    pcb_s* new_pcb = (pcb_s*) kAlloc(sizeof(pcb_s));
+
+    // 2. initialize it
+    new_pcb->next_instruction = (int*) entry;
+
+    // 3. return the new allocated+initialized PCB
+    return new_pcb;
+}
+
 void sched_init()
 {
     kheap_init();

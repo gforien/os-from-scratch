@@ -3,13 +3,15 @@
 
 extern int* saved_registers;
 
-struct pcb_s
+typedef struct pcb_s
 {
     int general_registers[13];
     int* next_instruction;
-};
-typedef struct pcb_s pcb_s;
+} pcb_s;
+typedef int (func_t) (void);
 
 void sys_yieldto(pcb_s* dest);
 void do_sys_yieldto();
+pcb_s* create_process (func_t entry);
+
 #endif
