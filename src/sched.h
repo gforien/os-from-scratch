@@ -11,4 +11,5 @@ struct pcb_s
 typedef struct pcb_s pcb_s;
 
 void sys_yieldto(pcb_s* dest);
+void do_sys_yieldto();
 #endif

@@ -1,6 +1,7 @@
 #include "util.h"
 #include "syscall.h"
 #include "hw.h"
+#include "sched.h"
 /**
  * syscall.c
  *
@@ -156,6 +157,9 @@ void __attribute__((naked)) C_swi_handler()
             break;
         case 4:
             do_sys_gettime();
+            break;
+        case 5:
+            do_sys_yieldto();
             break;
         default:
             PANIC();
