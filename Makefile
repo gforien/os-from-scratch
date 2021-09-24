@@ -71,3 +71,12 @@ build/kernel.list: build/kernel.elf
 .PHONY:clean
 clean:
 	rm -rf build
+
+.PHONY:test
+test:
+	cd tools;\
+	(./run-test.sh   ../test/kmain-reboot.c        ../test/sys-reboot-does-reboot.gdb 		| grep OK) &&\
+	(./run-test.sh   ../test/kmain-nop-reboot.c    ../test/sys-nop-does-return.gdb 			| grep OK) &&\
+	(./run-test.sh   ../test/kmain-nop-reboot.c    ../test/swi-handler-preserves-SP.gdb 	| grep OK) &&\
+	(./run-test.sh   ../test/kmain-settime.c       ../test/sys-settime-passes-argument.gdb	| grep OK) &&\
+	echo "\033[;32mAll tests SUCCEEDED\033[0m" || echo "\033[;31mOne or more tests FAILED\033[0m"
