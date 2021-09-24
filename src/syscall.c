@@ -1,5 +1,6 @@
 #include "util.h"
 #include "syscall.h"
+#include "hw.h"
 /**
  * syscall.c
  *
@@ -37,6 +38,7 @@
  */
 
 // Syscall number 3
+int* registers_p;
 void sys_settime(uint64_t date_ms)
 {
     uint32_t lsw = (uint32_t) date_ms;
@@ -49,9 +51,27 @@ void sys_settime(uint64_t date_ms)
 }
 void do_sys_settime()
 {
+    // useless computations
     int x1 = 12;
     int x2 = 13;
     x2 += x1;
+
+    // onto the stack:
+    // - sp+1 = r1 = lsw
+    // - sp+2 = r2 = msw
+    // this is our ABI : Application Binary Interface
+    uint32_t lsw = *(registers_p + 1);
+    uint64_t msw = *(registers_p + 2);
+    uint64_t date_ms = lsw;
+    uint64_t date_ms2 = (msw << 32);
+    date_ms = date_ms + date_ms2;
+
+    /* My solution that didn't work
+    uint64_t date_ms = *(registers_p+2);
+    date_ms = date_ms << 32;
+    uint64_t date_ms2 = *(registers_p+1);
+    date_ms += date_ms2;*/
+    set_date_ms(date_ms);
 }
 
 // Syscall number 2
@@ -84,27 +104,29 @@ void do_sys_reboot()
 void __attribute__((naked)) C_swi_handler()
 {
     // save user registers
-    __asm("stmfd sp!, {r1-r12, lr}");
+    __asm("stmfd sp!, {r0-r12, lr}");
 
-    // get parameters
+    // set global variable pointing to the registers
+    __asm("mov %0, sp" : "=r"(registers_p));
 
     // get the syscall number from r0
     int X;
     __asm("mov %0, r0" : "=r"(X));
 
-    if (X == 1) {
-        do_sys_reboot();
-    }
-    else if (X == 2) {
-        do_sys_nop();
-    }
-    else if (X == 3) {
-        do_sys_settime();
-    }
-    else {
-        PANIC();
+    switch(X) {
+        case 1:
+            do_sys_reboot();
+            break;
+        case 2:
+            do_sys_nop();
+            break;
+        case 3:
+            do_sys_settime();
+            break;
+        default:
+            PANIC();
     }
 
     // load user registers
-    __asm("ldmfd sp!, {r1-r12, pc}^");
+    __asm("ldmfd sp!, {r0-r12, pc}^");
 }

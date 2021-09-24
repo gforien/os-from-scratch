@@ -38,7 +38,7 @@ int kmain( void )
 
     //******************************/
     // USER MODE
-    sys_settime(0x0123456789acbdef);
+    sys_settime(0x123456789abcdef);
 
     sys_nop();
 
