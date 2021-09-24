@@ -2,11 +2,13 @@
 #include "sched.h"
 
 pcb_s* current_process;
+pcb_s* kmain_process;
 
 void sched_init()
 {
     kheap_init();
-    current_process = (pcb_s*) kAlloc(sizeof(pcb_s));
+    kmain_process = (pcb_s*) kAlloc(sizeof(pcb_s));
+    current_process = kmain_process;
     // kFree(saved_registers, sizeof(pcb_s));
 }
 
