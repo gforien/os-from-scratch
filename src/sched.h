@@ -9,6 +9,7 @@ typedef struct pcb_s
     int* next_instruction;
     int LR_user;
     int* SP_user;
+    int CPSR_user;
 } pcb_s;
 typedef int (func_t) (void);
 

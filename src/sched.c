@@ -44,6 +44,8 @@ void do_sys_yieldto()
     __asm("mov %0, sp" : "=r"(current_process->SP_user));
     // then switch back to SVC mode (19)
     __asm("cps #19");
+    // Also save the CPSR (which has been copied to SVC SPSR)
+    __asm("mrs %0, spsr" : "=r"(current_process->CPSR_user)); // 1
 
     // 2) save context, firstly r0-12
     for (int i = 0; i < 13; ++i) {
@@ -65,5 +67,7 @@ void do_sys_yieldto()
     __asm("cps #31");
     __asm("mov lr, %0" :  : "r"(current_process->LR_user));
     __asm("mov sp, %0" :  : "r"(current_process->SP_user));
+    // Also restore the CPSR
+    __asm("msr cpsr, %0" : : "r"(current_process->CPSR_user));
     __asm("cps #19");
 }
