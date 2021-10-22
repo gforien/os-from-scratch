@@ -1,68 +1,45 @@
-#include "src/syscall.h"
+#include "util.h"
+#include "syscall.h"
+#include "sched.h"
 
-void dummy()
-{
-    return;
-}
+struct pcb_s *p1, *p2;
 
-int div(int dividend, int divisor)
+void user_process_1()
 {
-    int result = 0;
-    int remainder = dividend;
-    while (remainder >= divisor) {
-        result++;
-        remainder -= divisor;
+    int v1 = 5;
+    while(1)
+    {
+        v1++;
+        sys_yieldto(p2);
     }
-    return result;
 }
 
-int compute_volume(int rad)
+void user_process_2()
 {
-    int rad3 = rad * rad * rad;
-    return div(4*355*rad3, 3*113);
+    int v2 = -12;
+    while(1)
+    {
+        v2-=2;
+        sys_yieldto(p1);
+    }
 }
 
-int __attribute__((naked)) compute_volume2(int rad)
+void kmain( void )
 {
-    int rad3 = rad * rad * rad;
-    return div(4*355*rad3, 3*113);
-}
+    sched_init();
 
+    func_t* func_process_1 = (func_t*) &user_process_1;
+    func_t* func_process_2 = (func_t*) &user_process_2;
 
+    // initialize p1 and p2
+    p1 = create_process(func_process_1);
+    p2 = create_process(func_process_2);
 
-int kmain( void )
-{
-    /* Chapter 4 : System calls */
-    // SYSTEM MODE
+    // switch CPU to USER mode
     __asm("cps 0x10");
+    //**************************
+    sys_yieldto(p1);
 
-    //******************************/
-    // USER MODE
-    sys_settime(0x123456789abcdef);
-
-    sys_nop();
-
-    sys_reboot();
-    //******************************/
-
-    /* Chapter 3 : Execution modes */
-    __asm("cps #16");
-    __asm("cps #19");
-
-    /* Chapter 2 */
-    __asm("bl dummy");
-    int var0;
-    int var1;
-    __asm("mov %0, r0": "=r"(var0): :"r0", "r1");
-    __asm("mov %0, r0": "=r"(var1): :"r0", "r1");
-
-    int radius = 5;
-    __asm("mov r2, %0": :"r"(radius));
-    __asm("mov %0, r3": "=r"(radius));
-
-    int volume;
-    dummy();
-    volume = compute_volume(radius);
-
-    return volume;
+    // this is now unreachable
+    PANIC();
 }

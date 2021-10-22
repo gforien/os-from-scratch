@@ -1,6 +1,7 @@
 #include "util.h"
 #include "syscall.h"
 #include "hw.h"
+#include "sched.h"
 /**
  * syscall.c
  *
@@ -37,7 +38,7 @@
  *
  */
 
-int* registers_p;
+int* saved_registers;
 
 
 // Syscall number 4
@@ -62,8 +63,8 @@ void do_sys_gettime()
     uint64_t date = get_date_ms();
     uint32_t lsw = (uint32_t) date;
     uint32_t msw = (uint32_t) (date >> 32);
-    *(registers_p) = lsw;
-    *(registers_p+1) = msw;
+    *(saved_registers) = lsw;
+    *(saved_registers+1) = msw;
     //__asm("mov r0, %0" : : "r"(lsw));
     //__asm("mov r1, %0" : : "r"(msw) : "r0");
 }
@@ -91,16 +92,16 @@ void do_sys_settime()
     // - sp+1 = r1 = lsw
     // - sp+2 = r2 = msw
     // this is our ABI : Application Binary Interface
-    uint32_t lsw = *(registers_p + 1);
-    uint64_t msw = *(registers_p + 2);
+    uint32_t lsw = *(saved_registers + 1);
+    uint64_t msw = *(saved_registers + 2);
     uint64_t date_ms = lsw;
     uint64_t date_ms2 = (msw << 32);
     date_ms = date_ms + date_ms2;
 
     /* My solution that didn't work
-    uint64_t date_ms = *(registers_p+2);
+    uint64_t date_ms = *(saved_registers+2);
     date_ms = date_ms << 32;
-    uint64_t date_ms2 = *(registers_p+1);
+    uint64_t date_ms2 = *(saved_registers+1);
     date_ms += date_ms2;*/
     set_date_ms(date_ms);
 }
@@ -138,7 +139,7 @@ void __attribute__((naked)) C_swi_handler()
     __asm("stmfd sp!, {r0-r12, lr}");
 
     // set global variable pointing to the registers
-    __asm("mov %0, sp" : "=r"(registers_p));
+    __asm("mov %0, sp" : "=r"(saved_registers));
 
     // get the syscall number from r0
     int X;
@@ -156,6 +157,9 @@ void __attribute__((naked)) C_swi_handler()
             break;
         case 4:
             do_sys_gettime();
+            break;
+        case 5:
+            do_sys_yieldto();
             break;
         default:
             PANIC();
