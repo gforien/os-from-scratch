@@ -75,10 +75,13 @@ clean:
 .PHONY:test
 test:
 	cd tools;\
-	echo "5 tests from q4.5 to q4.20";\
+	echo "8 tests from q4.5 to q5.15";\
 	(./run-test.sh   ../test/kmain-reboot.c        ../test/sys-reboot-does-reboot.gdb 		| grep OK) &&\
 	(./run-test.sh   ../test/kmain-nop-reboot.c    ../test/sys-nop-does-return.gdb 			| grep OK) &&\
 	(./run-test.sh   ../test/kmain-nop-reboot.c    ../test/swi-handler-preserves-SP.gdb 	| grep OK) &&\
 	(./run-test.sh   ../test/kmain-settime.c       ../test/sys-settime-passes-argument.gdb	| grep OK) &&\
 	(./run-test.sh   ../test/kmain-gettime.c       ../test/sys-gettime-returns-value.gdb    | grep OK) &&\
+	(./run-test.sh   ../test/kmain-yieldto.c       ../test/sys-yieldto-jumps-to-dest.gdb    | grep OK) &&\
+	(./run-test.sh   ../test/kmain-yieldto.c       ../test/sys-yieldto-preserves-locals.gdb | grep OK) &&\
+	(./run-test.sh   ../test/kmain-yieldto.c       ../test/sys-yieldto-preserves-status-register.gdb | grep OK) &&\
 	echo "\033[;32mAll tests SUCCEEDED\033[0m" || echo "\033[;31mOne or more tests FAILED\033[0m"
