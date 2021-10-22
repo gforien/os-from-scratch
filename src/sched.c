@@ -12,7 +12,10 @@ pcb_s* create_process (func_t* entry)
     // 2. initialize it
     new_pcb->next_instruction = (int*) entry;
 
-    // 3. return the new allocated+initialized PCB
+    // 3. Add a new 10KB execution stack
+    int* new_stack = (int*) kAlloc(sizeof(10000));
+
+    // 4. return the new allocated+initialized PCB
     return new_pcb;
 }
 
