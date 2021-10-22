@@ -8,6 +8,7 @@ typedef struct pcb_s
     int general_registers[13];
     int* next_instruction;
     int LR_user;
+    int* SP_user;
 } pcb_s;
 typedef int (func_t) (void);
 

@@ -14,6 +14,8 @@ pcb_s* create_process (func_t* entry)
 
     // 3. Add a new 10KB execution stack
     int* new_stack = (int*) kAlloc(sizeof(10000));
+    // we substract 2500 int (= 10 KB) to point to the top of the stack
+    new_pcb->SP_user = new_stack - 2500;
 
     // 4. return the new allocated+initialized PCB
     return new_pcb;
