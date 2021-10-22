@@ -41,6 +41,7 @@ void do_sys_yieldto()
     // 1) Switch to System mode (31) to save LR_user and SP_user
     __asm("cps #31");
     __asm("mov %0, lr" : "=r"(current_process->LR_user));
+    __asm("mov %0, sp" : "=r"(current_process->SP_user));
     // then switch back to SVC mode (19)
     __asm("cps #19");
 
@@ -63,5 +64,6 @@ void do_sys_yieldto()
     *(saved_registers+13) = (int) current_process->next_instruction;
     __asm("cps #31");
     __asm("mov lr, %0" :  : "r"(current_process->LR_user));
+    __asm("mov sp, %0" :  : "r"(current_process->SP_user));
     __asm("cps #19");
 }
